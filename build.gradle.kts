@@ -1,12 +1,9 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
-plugins {
-    // Apply the Kotlin JVM plugin to add support for Kotlin.
-    id("com.github.johnrengelman.shadow") version "4.0.4"
-    
+plugins {    
     kotlin("jvm") version "1.3.21"
-
+    java
     // Apply the application plugin to add support for building a CLI application.
     application
 
@@ -93,6 +90,16 @@ tasks.test {
         }
 
         private fun TestDescriptor.displayName() = parent?.let { "${it.name} - $name" } ?: "$name"
+    })
+}
+
+tasks.jar {
+    manifest {
+        attributes(mapOf("Main-Class" to "tasks.YAMLKt"))
+    }
+    dependsOn(configurations.runtimeClasspath)
+    from ({ 
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
     })
 }
 
